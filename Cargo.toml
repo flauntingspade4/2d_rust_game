@@ -8,5 +8,4 @@ edition = "2018"
 
 [dependencies]
 ggez = "0.5.1"
-ggwp-zgui = { path = "ggwp-zgui" }
 rand = "0.7.3"

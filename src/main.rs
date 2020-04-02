@@ -1,53 +1,28 @@
-//! The simplest possible example that does something.
+mod event_loop;
+mod assets;
+mod player;
 
 use ggez;
 use ggez::event;
-use ggez::graphics;
-use ggez::nalgebra as na;
-use ggez::{Context, GameResult};
+use ggez::GameResult;
+use ggez::conf::WindowSetup;
 
-use rand::Rng;
-
-struct MainState {
-    pos_x: f32,
-    pos_y: f32,
-}
-
-impl MainState {
-    fn new() -> GameResult<MainState> {
-        let mut rng = rand::thread_rng();
-        let s = MainState { pos_x: 0.0, pos_y: rng.gen_range(0.0, 800.0) };
-        Ok(s)
+impl Init for WindowSetup {
+    fn new(title: String, samples: ggez::conf::NumSamples, vsync: bool, icon: String, srgb: bool) -> Self {
+        return WindowSetup { title: title, samples: samples, vsync: vsync, icon: icon, srgb: srgb}
     }
 }
 
-impl event::EventHandler for MainState {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult {
-        self.pos_x = self.pos_x % 800.0 + 1.0;
-        Ok(())
-    }
-
-    fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, graphics::Color::from_rgb_u32(0x4E4132));
-
-        let circle = graphics::Mesh::new_circle(
-            ctx,
-            graphics::DrawMode::fill(),
-            na::Point2::new(0.0, 0.0),
-            100.0,
-            2.0,
-            graphics::WHITE,
-        )?;
-        graphics::draw(ctx, &circle, (na::Point2::new(self.pos_x, self.pos_y),))?;
-
-        graphics::present(ctx)?;
-        Ok(())
-    }
+pub trait Init {
+    fn new(title: String, samples: ggez::conf::NumSamples, vsync: bool, icon: String, srgb: bool) -> Self;
 }
 
 pub fn main() -> GameResult {
-    let cb = ggez::ContextBuilder::new("Starting", "flauntingspade4");
-    let (ctx, event_loop) = &mut cb.build()?;
-    let state = &mut MainState::new()?;
-    event::run(ctx, event_loop, state)
+    let ready_window = WindowSetup::new("A basic shooter game".to_string(), ggez::conf::NumSamples::Zero, true, "/icon.png".to_owned(), true);
+    let (mut ctx, mut event_loop) = ggez::ContextBuilder::new("Starting", "flauntingspade4")
+        .window_setup(ready_window)
+        .build()
+        .unwrap();
+    let mut state = event_loop::MainState::new(&mut ctx)?;
+    event::run(&mut ctx, &mut event_loop, &mut state)
 }

@@ -647,16 +647,7 @@ name = "ggez_test"
 version = "0.1.0"
 dependencies = [
  "ggez",
- "ggwp-zgui",
  "rand 0.7.3",
-]
-
-[[package]]
-name = "ggwp-zgui"
-version = "0.1.0"
-dependencies = [
- "log",
- "nalgebra",
 ]
 
 [[package]]
