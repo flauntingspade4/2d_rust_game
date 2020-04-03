@@ -2,10 +2,12 @@ use ggez;
 use ggez::event;
 use ggez::graphics;
 use ggez::nalgebra as na;
+use ggez::graphics::DrawParam;
 use ggez::{Context, GameResult};
 use ggez::input::keyboard::{ KeyCode, KeyMods, is_key_pressed };
 
 use rand::Rng;
+
 use std::f32;
 
 use crate::assets::Assets;
@@ -26,7 +28,7 @@ impl MainState {
     pub fn new(ctx: &mut Context) -> GameResult<MainState> {
         let player = Player::new();
         let circ_pos_x = 0.;
-        let circ_pos_y = rand::thread_rng().gen_range(0., 800.);
+        let circ_pos_y = rand::thread_rng().gen_range(0., 600.);
         let assets = Assets::new(ctx).unwrap();
 
         let s = MainState { player, circ_pos_x, circ_pos_y, assets };
@@ -44,7 +46,10 @@ impl event::EventHandler for MainState {
         graphics::clear(ctx, graphics::Color::from_rgb_u32(0x4E4132));
 
         let dst = na::Point2::new(self.player.coord.x, self.player.coord.y);
-        graphics::draw(ctx, &self.assets.player_image, (dst,))?;
+        graphics::draw(ctx, &self.assets.player_image, DrawParam::default()
+            .dest(dst)
+            .offset(na::Point2::new(32. as f32 / 64.0, 32. as f32 / 64.0))
+            .rotation(self.player.rotation))?;
 
         let circle = graphics::Mesh::new_circle(
             ctx,
@@ -62,7 +67,7 @@ impl event::EventHandler for MainState {
     fn key_down_event(
         &mut self,
         ctx: &mut Context,
-        keycode: KeyCode,
+        _keycode: KeyCode,
         _keymods: KeyMods,
         _repeat: bool
     ) {
@@ -88,5 +93,15 @@ impl event::EventHandler for MainState {
         else if is_key_pressed(ctx, KeyCode::A) && self.player.coord.x > 0. {
             self.player.coord.x = self.player.coord.x - 1. * speed;
         }
+    }
+    fn mouse_motion_event(
+        &mut self,
+        _ctx: &mut Context,
+        x: f32,
+        y: f32,
+        _dx: f32,
+        _dy: f32
+    ) {
+        self.player.rotation = -(y - self.player.coord.y).atan2(self.player.coord.x - x) - core::f32::consts::PI / 2.;
     }
 }

@@ -1,5 +1,5 @@
-mod event_loop;
 mod assets;
+mod event_loop;
 mod player;
 
 use ggez;
