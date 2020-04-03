@@ -12,6 +12,7 @@ use std::f32;
 
 use crate::assets::Assets;
 use crate::player::Player;
+use crate::pine::Pine;
 
 const PLAYER_SPEED: f32 = 16.;
 const PLAYER_WIDTH: f32 = 32.;
@@ -22,6 +23,7 @@ pub struct MainState {
     circ_pos_x: f32,
     circ_pos_y: f32,
     assets: Assets,
+    pines: Vec<Pine>,
 }
 
 impl MainState {
@@ -30,8 +32,9 @@ impl MainState {
         let circ_pos_x = 0.;
         let circ_pos_y = rand::thread_rng().gen_range(0., 600.);
         let assets = Assets::new(ctx).unwrap();
+        let pines: Vec<Pine> = Vec::new();
 
-        let s = MainState { player, circ_pos_x, circ_pos_y, assets };
+        let s = MainState { player, circ_pos_x, circ_pos_y, assets, pines };
         Ok(s)
     }
 }
@@ -45,9 +48,8 @@ impl event::EventHandler for MainState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         graphics::clear(ctx, graphics::Color::from_rgb_u32(0x4E4132));
 
-        let dst = na::Point2::new(self.player.coord.x, self.player.coord.y);
         graphics::draw(ctx, &self.assets.player_image, DrawParam::default()
-            .dest(dst)
+            .dest(self.player.dst)
             .offset(na::Point2::new(32. as f32 / 64.0, 32. as f32 / 64.0))
             .rotation(self.player.rotation))?;
 
@@ -80,18 +82,18 @@ impl event::EventHandler for MainState {
             speed = speed / 2.0_f32.sqrt();
         }
 
-        if is_key_pressed(ctx, KeyCode::S) && self.player.coord.y < 600. - PLAYER_HEIGHT {
-            self.player.coord.y = self.player.coord.y + 1. * speed;
+        if is_key_pressed(ctx, KeyCode::S) && self.player.dst.y < 600. - PLAYER_HEIGHT {
+            self.player.dst.y = self.player.dst.y + 1. * speed;
         }
-        else if is_key_pressed(ctx, KeyCode::W) && self.player.coord.y > 0. {
-            self.player.coord.y = self.player.coord.y - 1. * speed;
+        else if is_key_pressed(ctx, KeyCode::W) && self.player.dst.y > 32. {
+            self.player.dst.y = self.player.dst.y - 1. * speed;
         }
 
-        if is_key_pressed(ctx, KeyCode::D) && self.player.coord.x < 800. - PLAYER_WIDTH {
-            self.player.coord.x = self.player.coord.x + 1. * speed;
+        if is_key_pressed(ctx, KeyCode::D) && self.player.dst.x < 800. - PLAYER_WIDTH {
+            self.player.dst.x = self.player.dst.x + 1. * speed;
         }
-        else if is_key_pressed(ctx, KeyCode::A) && self.player.coord.x > 0. {
-            self.player.coord.x = self.player.coord.x - 1. * speed;
+        else if is_key_pressed(ctx, KeyCode::A) && self.player.dst.x > 32. {
+            self.player.dst.x = self.player.dst.x - 1. * speed;
         }
     }
     fn mouse_motion_event(
@@ -102,6 +104,6 @@ impl event::EventHandler for MainState {
         _dx: f32,
         _dy: f32
     ) {
-        self.player.rotation = -(y - self.player.coord.y).atan2(self.player.coord.x - x) - core::f32::consts::PI / 2.;
+        self.player.rotation = -(y - self.player.dst.y).atan2(self.player.dst.x - x) - core::f32::consts::PI / 2.;
     }
 }

@@ -1,5 +1,6 @@
 mod assets;
 mod event_loop;
+mod pine;
 mod player;
 
 use ggez;
