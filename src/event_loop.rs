@@ -2,7 +2,7 @@ use ggez;
 use ggez::event;
 use ggez::graphics;
 use ggez::nalgebra as na;
-use ggez::graphics::DrawParam;
+use ggez::graphics::{ DrawParam, spritebatch::SpriteBatch };
 use ggez::{Context, GameResult};
 use ggez::input::keyboard::{ KeyCode, KeyMods, is_key_pressed };
 
@@ -23,7 +23,9 @@ pub struct MainState {
     circ_pos_x: f32,
     circ_pos_y: f32,
     assets: Assets,
-    pines: Vec<Pine>,
+    pines: SpriteBatch,
+    //pines: Vec<Pine>,
+    //pines: Pines,
 }
 
 impl MainState {
@@ -32,7 +34,7 @@ impl MainState {
         let circ_pos_x = 0.;
         let circ_pos_y = rand::thread_rng().gen_range(0., 600.);
         let assets = Assets::new(ctx).unwrap();
-        let pines: Vec<Pine> = Vec::new();
+        let pines = SpriteBatch::new(assets.pine_image);
 
         let s = MainState { player, circ_pos_x, circ_pos_y, assets, pines };
         Ok(s)
@@ -52,6 +54,9 @@ impl event::EventHandler for MainState {
             .dest(self.player.dst)
             .offset(na::Point2::new(32. as f32 / 64.0, 32. as f32 / 64.0))
             .rotation(self.player.rotation))?;
+
+        graphics::draw(ctx, &self.pines, DrawParam::default()
+            .dest(na::Point2::new(450., 300.)))?;
 
         let circle = graphics::Mesh::new_circle(
             ctx,
@@ -85,14 +90,14 @@ impl event::EventHandler for MainState {
         if is_key_pressed(ctx, KeyCode::S) && self.player.dst.y < 600. - PLAYER_HEIGHT {
             self.player.dst.y = self.player.dst.y + 1. * speed;
         }
-        else if is_key_pressed(ctx, KeyCode::W) && self.player.dst.y > 32. {
+        else if is_key_pressed(ctx, KeyCode::W) && self.player.dst.y > PLAYER_HEIGHT {
             self.player.dst.y = self.player.dst.y - 1. * speed;
         }
 
         if is_key_pressed(ctx, KeyCode::D) && self.player.dst.x < 800. - PLAYER_WIDTH {
             self.player.dst.x = self.player.dst.x + 1. * speed;
         }
-        else if is_key_pressed(ctx, KeyCode::A) && self.player.dst.x > 32. {
+        else if is_key_pressed(ctx, KeyCode::A) && self.player.dst.x > PLAYER_WIDTH {
             self.player.dst.x = self.player.dst.x - 1. * speed;
         }
     }
