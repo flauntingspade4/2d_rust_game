@@ -1,7 +1,7 @@
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
-#[derive(Clone)]
+//#[derive(Copy, Clone)]
 pub struct Assets {
     pub player_image: graphics::Image,
     pub shot_image: graphics::Image,
