@@ -8,6 +8,3 @@ edition = "2018"
 
 [dependencies]
 ggez = "0.5.1"
-noise = "0.6.0"
-#ncollide2d = "0.22"
-nphysics2d = "0.14.0"

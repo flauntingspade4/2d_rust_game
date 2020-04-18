@@ -28,7 +28,7 @@ impl Player {
     pub fn check_health(&self) -> i8 {
         self.health
     }
-    pub fn update(&mut self, ctx: &Context /*, physics: &mut Physics*/) {
+    pub fn update(&mut self, ctx: &Context) {
         let up_down: bool = is_key_pressed(ctx, KeyCode::W) || is_key_pressed(ctx, KeyCode::S);
         let left_right: bool = is_key_pressed(ctx, KeyCode::A) || is_key_pressed(ctx, KeyCode::D);
 
