@@ -17,7 +17,7 @@ pub struct AiType {
     pub points: Vec<Point2<f32>>,
     function: fn(&mut Point2<f32>, &mut Player) -> Point2<f32>,
     pub image: Image,
-    rotation: f32,
+    rotation_vec: Vec<f32>,
 }
 
 trait Point2Changing {
@@ -51,28 +51,32 @@ impl AiType {
             function: input_function,
             points: Vec::new(),
             image: image,
-            rotation: 0.,
+            rotation_vec: Vec::new(),
         }
     }
     pub fn update(&mut self, player: &mut Player) {
-        for point in &mut self.points {
+        for (index, point) in (&mut self.points).iter_mut().enumerate() {
             let change_by = (self.function)(point, player);
             point.change_values_by(change_by);
-            self.rotation = -(player.dst.y - point.y).atan2(point.x - player.dst.x);
+            self.rotation_vec[index] = -(player.dst.y - point.y).atan2(point.x - player.dst.x);
         }
     }
     pub fn draw(&self, ctx: &mut Context) {
-        for point in &self.points {
+        for (index, point) in (&self.points).iter().enumerate() {
             graphics::draw(
                 ctx,
                 &self.image,
                 DrawParam::default()
                     .dest(Point2::new(point.x, point.y))
                     .offset(Point2::new(32. as f32 / 64.0, 32. as f32 / 64.0))
-                    .rotation(self.rotation),
+                    .rotation(self.rotation_vec[index]),
             )
             .expect("Failed to draw point");
         }
+    }
+    pub fn add_point(&mut self, new_point: Point2<f32>) {
+        self.points.push(new_point);
+        self.rotation_vec.push(0.);
     }
 }
 
@@ -129,8 +133,8 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
         graphics::Image::new(ctx, "/leaper.png").unwrap(),
     );
     for x in 0..4 {
-        standard.points.push(Point2::new(x as f32, x as f32 * 100.));
-        leaper.points.push(Point2::new(x as f32, x as f32 * 100.));
+        standard.add_point(Point2::new(x as f32, x as f32 * 100.));
+        leaper.add_point(Point2::new(x as f32, x as f32 * 100.));
     }
     let mut ai = Vec::new();
     ai.push(standard);
