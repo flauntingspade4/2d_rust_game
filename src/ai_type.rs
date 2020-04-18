@@ -81,7 +81,7 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
         |point, player| {
             let mut to_return = Point2::new(0., 0.);
             let dp = Point2::new(player.dst.x - point.x, player.dst.y - point.y);
-            if player.dst.equals(point, 5.) {
+            if player.dst.equals(point, 32.) {
                 player.damage(5);
                 return Point2::new(-point.x, -point.y);
             }
@@ -103,7 +103,7 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
         |point, player| {
             let dp = Point2::new(player.dst.x - point.x, player.dst.y - point.y);
             let mut to_return = Point2::new(0., 0.);
-            if player.dst.equals(point, 5.) {
+            if player.dst.equals(point, 32.) {
                 player.damage(5);
                 return Point2::new(-point.x, -point.y);
             } else if dp.x > 300. {
