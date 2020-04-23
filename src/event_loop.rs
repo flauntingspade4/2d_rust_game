@@ -57,7 +57,7 @@ impl event::EventHandler for MainState {
             &self.assets.player_image,
             DrawParam::default()
                 .dest(self.player.dst)
-                .offset(Point2::new(32. as f32 / 64.0, 32. as f32 / 64.0))
+                .offset(Point2::new(0.5, 0.5))
                 .rotation(self.player.rotation),
         )?;
 

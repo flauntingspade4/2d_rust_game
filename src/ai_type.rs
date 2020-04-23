@@ -74,7 +74,7 @@ impl AiType {
                 &self.image,
                 DrawParam::default()
                     .dest(Point2::new(point.x, point.y))
-                    .offset(Point2::new(32. as f32 / 64.0, 32. as f32 / 64.0))
+                    .offset(Point2::new(0.5, 0.5))
                     .rotation(self.rotation_vec[index]),
             )
             .expect("Failed to draw point");
