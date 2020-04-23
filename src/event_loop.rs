@@ -2,6 +2,7 @@ use ggez;
 use ggez::event;
 use ggez::graphics;
 use ggez::graphics::DrawParam;
+use ggez::input::mouse::{button_pressed, MouseButton};
 use ggez::nalgebra as na;
 use ggez::{Context, GameResult};
 use na::Point2;
@@ -64,24 +65,25 @@ impl event::EventHandler for MainState {
             types.draw(ctx);
         }
 
-        /*for x in 0..=10 {
-            for y in 0..=10 {
-                let x = x as f32;
-                let y = y as f32;
-                let p = DrawParam::new()
-                    .dest(Point2::new(x * 10.0, y * 10.0))
-                    .scale(Vector2::new(2.0, 2.0))
-                    .rotation(time as f32 / 1000.);
-                self.all_pines.add(p);
-            }
-        }
-        graphics::draw(ctx, &self.all_pines, DrawParam::default())?;
-        self.all_pines.clear();*/
-
         graphics::present(ctx)?;
         Ok(())
     }
     fn mouse_motion_event(&mut self, _ctx: &mut Context, x: f32, y: f32, _dx: f32, _dy: f32) {
         self.player.rotation = -(y - self.player.dst.y).atan2(self.player.dst.x - x) - PI / 2.;
+    }
+    fn mouse_button_down_event(
+        &mut self,
+        ctx: &mut Context,
+        _button: MouseButton,
+        _x: f32,
+        _y: f32,
+    ) {
+        if button_pressed(ctx, MouseButton::Left) {
+            let a = 1. / self.player.rotation.tan();
+            let c = -self.player.dst.y - (self.player.dst.x * a);
+            for types in self.types.iter_mut() {
+                types.check_shot(a, c);
+            }
+        }
     }
 }

@@ -11,10 +11,14 @@ use crate::player::Player;
 const STANDARD_SPEED: f32 = 5.;
 const LEAPER_SPEED: f32 = 2.;
 
+const STANDARD_RADIUS: f32 = 32.;
+const LEAPER_RADIUS: f32 = 32.;
+
 const LEAPER_MULT: f32 = 10.;
 
 pub struct AiType {
     pub points: Vec<Point2<f32>>,
+    radius: f32,
     function: fn(&mut Point2<f32>, &mut Player) -> Point2<f32>,
     pub image: Image,
     rotation_vec: Vec<f32>,
@@ -46,10 +50,12 @@ impl AiType {
     pub fn from_function(
         input_function: fn(&mut Point2<f32>, &mut Player) -> Point2<f32>,
         image: Image,
+        radius: f32,
     ) -> Self {
         Self {
-            function: input_function,
             points: Vec::new(),
+            radius,
+            function: input_function,
             image: image,
             rotation_vec: Vec::new(),
         }
@@ -78,6 +84,13 @@ impl AiType {
         self.points.push(new_point);
         self.rotation_vec.push(0.);
     }
+    pub fn check_shot(&mut self, a: f32, c: f32) {
+        for point in self.points.iter_mut() {
+            if (a * point.x + point.y + c).abs() / (1. + a * a).sqrt() <= self.radius {
+                println!("Hit somthing");
+            }
+        }
+    }
 }
 
 pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
@@ -85,7 +98,7 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
         |point, player| {
             let mut to_return = Point2::new(0., 0.);
             let dp = Point2::new(player.dst.x - point.x, player.dst.y - point.y);
-            if player.dst.equals(point, 32.) {
+            if player.dst.equals(point, STANDARD_RADIUS) {
                 player.damage(5);
                 return Point2::new(-point.x, -point.y);
             }
@@ -102,12 +115,13 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
             return to_return;
         },
         graphics::Image::new(ctx, "/standard.png").unwrap(),
+        STANDARD_RADIUS,
     );
     let mut leaper = AiType::from_function(
         |point, player| {
             let dp = Point2::new(player.dst.x - point.x, player.dst.y - point.y);
             let mut to_return = Point2::new(0., 0.);
-            if player.dst.equals(point, 32.) {
+            if player.dst.equals(point, LEAPER_RADIUS) {
                 player.damage(5);
                 return Point2::new(-point.x, -point.y);
             } else if dp.x > 300. {
@@ -131,9 +145,10 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
             return to_return;
         },
         graphics::Image::new(ctx, "/leaper.png").unwrap(),
+        LEAPER_RADIUS,
     );
     for x in 0..4 {
-        standard.add_point(Point2::new(x as f32, x as f32 * 100.));
+        standard.add_point(Point2::new(x as f32 * 50., x as f32 * 100.));
         leaper.add_point(Point2::new(x as f32, x as f32 * 100.));
     }
     let mut ai = Vec::new();
