@@ -27,12 +27,11 @@ impl MainState {
         let assets = Assets::new(ctx).unwrap();
         let types = init_types(ctx);
 
-        let s = MainState {
+        Ok(MainState {
             player,
             assets,
             types,
-        };
-        Ok(s)
+        })
     }
 }
 
@@ -42,14 +41,13 @@ impl event::EventHandler for MainState {
             types.update(&mut self.player);
         }
         self.player.update(ctx);
-        if self.player.check_health() <= 0 {
+        if self.player.health <= 0 {
             ctx.continuing = false;
         }
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        //graphics::clear(ctx, graphics::Color::from_rgb_u32(0x4E4132));
         graphics::clear(ctx, graphics::Color::from_rgb_u32(0xffffff));
 
         graphics::draw(

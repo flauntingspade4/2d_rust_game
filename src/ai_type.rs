@@ -1,18 +1,13 @@
-use ggez;
-use ggez::graphics;
-use ggez::graphics::{DrawParam, Image};
-use ggez::nalgebra as na;
+use ggez::graphics::{self, DrawParam, Image};
+use ggez::nalgebra::Point2;
 use ggez::Context;
-
-use na::Point2;
 
 use crate::player::Player;
 
 const STANDARD_SPEED: f32 = 5.;
 const LEAPER_SPEED: f32 = 2.;
 
-const STANDARD_RADIUS: f32 = 32.;
-const LEAPER_RADIUS: f32 = 32.;
+const ENEMY_RADIUS: f32 = 32.;
 
 const LEAPER_MULT: f32 = 10.;
 
@@ -25,15 +20,10 @@ pub struct AiType {
 }
 
 trait Point2Changing {
-    fn change_values_by(&mut self, other: Self);
     fn equals(&self, other: &Self, allowance: f32) -> bool;
 }
 
 impl Point2Changing for Point2<f32> {
-    fn change_values_by(&mut self, other: Point2<f32>) {
-        self.x += other.x;
-        self.y += other.y;
-    }
     fn equals(&self, other: &Point2<f32>, allowance: f32) -> bool {
         if self.x + allowance >= other.x
             && self.x - allowance <= other.x
@@ -63,7 +53,8 @@ impl AiType {
     pub fn update(&mut self, player: &mut Player) {
         for (index, point) in (&mut self.points).iter_mut().enumerate() {
             let change_by = (self.function)(point, player);
-            point.change_values_by(change_by);
+            point.coords[0] += change_by.x;
+            point.coords[1] += change_by.y;
             self.rotation_vec[index] = -(player.dst.y - point.y).atan2(point.x - player.dst.x);
         }
     }
@@ -98,8 +89,8 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
         |point, player| {
             let mut to_return = Point2::new(0., 0.);
             let dp = Point2::new(player.dst.x - point.x, player.dst.y - point.y);
-            if player.dst.equals(point, STANDARD_RADIUS) {
-                player.damage(5);
+            if player.dst.equals(point, ENEMY_RADIUS) {
+                player.health -= 5;
                 return Point2::new(-point.x, -point.y);
             }
             if dp.x > 0. {
@@ -115,14 +106,14 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
             return to_return;
         },
         graphics::Image::new(ctx, "/standard.png").unwrap(),
-        STANDARD_RADIUS,
+        ENEMY_RADIUS,
     );
     let mut leaper = AiType::from_function(
         |point, player| {
             let dp = Point2::new(player.dst.x - point.x, player.dst.y - point.y);
             let mut to_return = Point2::new(0., 0.);
-            if player.dst.equals(point, LEAPER_RADIUS) {
-                player.damage(5);
+            if player.dst.equals(point, ENEMY_RADIUS) {
+                player.health -= 5;
                 return Point2::new(-point.x, -point.y);
             } else if dp.x > 300. {
                 to_return.x += LEAPER_SPEED * LEAPER_MULT;
@@ -145,13 +136,13 @@ pub fn init_types(ctx: &mut Context) -> Vec<AiType> {
             return to_return;
         },
         graphics::Image::new(ctx, "/leaper.png").unwrap(),
-        LEAPER_RADIUS,
+        ENEMY_RADIUS,
     );
     for x in 0..4 {
         standard.add_point(Point2::new(x as f32 * 50., x as f32 * 100.));
         leaper.add_point(Point2::new(x as f32, x as f32 * 100.));
     }
-    let mut ai = Vec::new();
+    let mut ai = Vec::with_capacity(2);
     ai.push(standard);
     ai.push(leaper);
     return ai;

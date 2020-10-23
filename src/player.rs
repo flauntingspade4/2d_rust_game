@@ -1,7 +1,6 @@
 use ggez::input::keyboard::{is_key_pressed, KeyCode};
-use ggez::nalgebra as na;
+use ggez::nalgebra::Point2;
 use ggez::Context;
-use na::Point2;
 
 const PLAYER_SPEED: f32 = 8.;
 const PLAYER_WIDTH: f32 = 32.;
@@ -10,7 +9,7 @@ const PLAYER_HEIGHT: f32 = 32.;
 pub struct Player {
     pub dst: Point2<f32>,
     pub rotation: f32, // In radians
-    health: i8,
+    pub health: i8,
 }
 
 impl Player {
@@ -22,15 +21,9 @@ impl Player {
             health: 100,
         };
     }
-    pub fn damage(&mut self, damage: i8) {
-        self.health -= damage;
-    }
-    pub fn check_health(&self) -> i8 {
-        self.health
-    }
     pub fn update(&mut self, ctx: &Context) {
-        let up_down: bool = is_key_pressed(ctx, KeyCode::W) || is_key_pressed(ctx, KeyCode::S);
-        let left_right: bool = is_key_pressed(ctx, KeyCode::A) || is_key_pressed(ctx, KeyCode::D);
+        let up_down = is_key_pressed(ctx, KeyCode::W) || is_key_pressed(ctx, KeyCode::S);
+        let left_right = is_key_pressed(ctx, KeyCode::A) || is_key_pressed(ctx, KeyCode::D);
 
         let mut speed = PLAYER_SPEED;
 
